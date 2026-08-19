@@ -1,203 +1,116 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat App - Group & Private</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: auto;
-      padding: 10px;
-    }
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
 
-    #chat,
-    #privateChat {
-      border: 1px solid #ccc;
-      padding: 10px;
-      height: 250px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-      background: #fafafa;
-    }
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
 
-    input,
-    button {
-      padding: 8px;
-      margin: 5px 0;
-    }
+    <!-- Primary SEO -->
+    <title>Chit-Chat - Real-Time Messaging</title>
 
-    .message {
-      margin: 5px 0;
-    }
+    <meta
+      name="description"
+      content="A secure real-time Chit-Chatlication for private messaging, conversations, and seamless communication."
+    />
 
-    .system {
-      font-style: italic;
-      color: gray;
-    }
+    <meta name="author" content="Swastik Mukherjee" />
 
-    .private {
-      color: darkred;
-      font-style: italic;
-    }
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://chit-chatting.vercel.app/" />
 
-    #loginDiv {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      background: #f0f0f0;
-    }
-  </style>
-</head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-<body>
-  <h2>Welcome to Chat App</h2>
+    <!-- Open Graph - Facebook, WhatsApp, LinkedIn, etc. -->
+    <meta property="og:type" content="website" />
 
-  <div id="loginDiv">
-    <h3>Login</h3>
-    <input type="text" id="loginEmail" placeholder="Email" style="width: 40%;" /><br />
-    <input type="password" id="loginPassword" placeholder="Password" style="width: 40%;" /><br />
-    <button onclick="login()">Login</button>
-  </div>
+    <meta
+      property="og:title"
+      content="Chit-Chat - Real-Time Messaging"
+    />
 
-  <div id="chatDiv" style="display:none;">
-    <div>
-      <strong>Your username:</strong> <span id="usernameDisplay"></span>
-    </div>
+    <meta
+      property="og:description"
+      content="A secure real-time Chit-Chatlication for private messaging and seamless communication."
+    />
 
-    <h3>Group Chat (Room: <span id="roomIdDisplay"></span>)</h3>
-    <div id="chat"></div>
-    <input type="text" id="groupMessage" placeholder="Type group message..." style="width: 80%;" />
-    <button onclick="sendGroupMessage()">Send Group</button>
-    <button onclick="leaveRoom()">Leave Room</button>
+    <meta
+      property="og:url"
+      content="https://chit-chatting.vercel.app/"
+    />
 
-    <h3>Private Chat</h3>
-    <input type="text" id="privateRecipient" placeholder="Recipient username" style="width: 40%;" />
-    <input type="text" id="privateMessage" placeholder="Type private message..." style="width: 35%;" />
-    <button onclick="sendPrivateMessage()">Send Private</button>
-    <div id="privateChat"></div>
-  </div>
+    <meta
+      property="og:site_name"
+      content="Chit-Chat"
+    />
 
-  <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
-  <script>
-    let stompClient = null;
-    let accessToken = null;
-    const roomId = "general";
+    <meta
+      property="og:image"
+      content="https://chit-chatting.vercel.app/chat-preview.png"
+    />
 
-    function login() {
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
+    <meta
+      property="og:image:secure_url"
+      content="https://chit-chatting.vercel.app/chat-preview.png"
+    />
 
-      if (!email || !password) {
-        alert("Email and password required!");
-        return;
-      }
+    <meta
+      property="og:image:type"
+      content="image/png"
+    />
 
-      // Call backend login API to get JWT
-      fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("Login failed");
-          return res.json();
-        })
-        .then(data => {
-          accessToken = data.access;      // access token
-          const username = data.username;  // get username from backend
-          startChat(username);             // use it in chat UI
-        })
-        .catch(err => alert(err.message));
-    }
+    <meta
+      property="og:image:width"
+      content="1200"
+    />
 
-    function startChat(username) {
-      document.getElementById("loginDiv").style.display = "none";
-      document.getElementById("chatDiv").style.display = "block";
-      document.getElementById("usernameDisplay").textContent = username;
-      document.getElementById("roomIdDisplay").textContent = roomId;
+    <meta
+      property="og:image:height"
+      content="630"
+    />
 
-      // Connect to WebSocket with JWT in headers
-      const socket = new SockJS("http://localhost:8080/ws");
-      stompClient = Stomp.over(socket);
+    <meta
+      property="og:image:alt"
+      content="Chit-Chat - Real-Time Messaging"
+    />
 
-      stompClient.connect(
-        { Authorization: `Bearer ${accessToken}` },
-        function (frame) {
-          console.log("Connected:", frame);
+    <!-- Twitter / X -->
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
 
-          // Subscribe to group topic
-          stompClient.subscribe(`/topic/room/${roomId}`, function (message) {
-            const msg = JSON.parse(message.body);
-            showGroupMessage(msg);
-          });
+    <meta
+      name="twitter:title"
+      content="Chit-Chat - Real-Time Messaging"
+    />
 
-          // Subscribe to private messages
-          stompClient.subscribe("/user/queue/messages", function (message) {
-            const msg = JSON.parse(message.body);
-            showPrivateMessage(msg);
-          });
+    <meta
+      name="twitter:description"
+      content="A secure real-time Chit-Chatlication for private messaging and seamless communication."
+    />
 
-          // Notify backend you joined
-          stompClient.send(`/app/chat.join/${roomId}`, {}, {});
-        },
-        function (err) {
-          console.error("STOMP error:", err);
-          alert("WebSocket connection failed");
-        }
-      );
-    }
+    <meta
+      name="twitter:image"
+      content="https://chit-chatting.vercel.app/chat-preview.png"
+    />
 
-    function showGroupMessage(msg) {
-      const chat = document.getElementById("chat");
-      let p = document.createElement("p");
-      p.className = "message";
-      if (msg.type === "JOIN" || msg.type === "LEAVE") {
-        p.className += " system";
-        p.textContent = msg.content;
-      } else {
-        p.innerHTML = `<b>${msg.sender}</b>: ${msg.content}`;
-      }
-      chat.appendChild(p);
-      chat.scrollTop = chat.scrollHeight;
-    }
+    <meta
+      name="twitter:image:alt"
+      content="Chit-Chat - Real-Time Messaging"
+    />
+  </head>
 
-    function showPrivateMessage(msg) {
-      const privateChat = document.getElementById("privateChat");
-      let p = document.createElement("p");
-      p.className = "message private";
-      p.innerHTML = `<b>${msg.sender}</b> (private): ${msg.content}`;
-      privateChat.appendChild(p);
-      privateChat.scrollTop = privateChat.scrollHeight;
-    }
+  <body>
+    <div id="root"></div>
 
-    function sendGroupMessage() {
-      const input = document.getElementById("groupMessage");
-      if (!input.value.trim()) return;
-      stompClient.send(`/app/chat.send/${roomId}`, {}, JSON.stringify({ content: input.value }));
-      input.value = "";
-    }
-
-    function sendPrivateMessage() {
-      const recipient = document.getElementById("privateRecipient").value;
-      const content = document.getElementById("privateMessage").value;
-      if (!recipient.trim() || !content.trim()) return;
-      stompClient.send(`/app/chat.private`, {}, JSON.stringify({ recipient, content }));
-      document.getElementById("privateMessage").value = "";
-    }
-
-    function leaveRoom() {
-      stompClient.send(`/app/chat.leave/${roomId}`, {}, {});
-      alert("You left the room.");
-    }
-
-    // Send on Enter key
-    document.getElementById("groupMessage").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendGroupMessage(); } });
-    document.getElementById("privateMessage").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendPrivateMessage(); } });
-  </script>
-</body>
-
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

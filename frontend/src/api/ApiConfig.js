@@ -9,6 +9,9 @@ export const API_ENDPOINTS = {
         LOGOUT: `${BASE_URL}/auth/logout`,
         REFRESH: `${BASE_URL}/auth/refresh`,
         REGISTER: `${BASE_URL}/signUp/register`,
+        REGISTER_OTP: `${BASE_URL}/signUp/send-otp`,
+        REGISTER_VERIFY_OTP: `${BASE_URL}/signUp/verify-otp`,
+
     },
 
     // === FORGOT PASSWORD ===
@@ -52,6 +55,11 @@ export const API_ENDPOINTS = {
     // === INVITATIONS ===
     INVITATIONS: {
         SEND: `${BASE_URL}/invitations/sendInvite`,
+    },
+
+    // === WEBSOCKET ===
+    WEBSOCKETS:{
+        CONNECT: `${BASE_URL}/ws`,
     }
 };
 

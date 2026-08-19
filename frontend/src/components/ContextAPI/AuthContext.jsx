@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../api/ApiConfig";
 
 export const AuthContext = createContext();
 
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
           try {
             // Attempt to get a new session
-            await axios.post("http://localhost:8080/auth/refresh", {}, { withCredentials: true });
+            await axios.post(API_ENDPOINTS.AUTH.REFRESH, {}, AXIOS_CONFIG);
 
             isRefreshing = false;
             processQueue(null); // Resolve all waiting requests
@@ -94,8 +95,8 @@ export const AuthProvider = ({ children }) => {
 
       try {
         // Try to refresh access_token if expired
-        await axios.post("http://localhost:8080/auth/refresh", {}, { withCredentials: true });
-        const response = await axios.get("http://localhost:8080/users/profile-data", { withCredentials: true });
+        await axios.post(API_ENDPOINTS.AUTH.REFRESH, {}, AXIOS_CONFIG);
+        const response = await axios.get(API_ENDPOINTS.USERS.PROFILE_DATA, AXIOS_CONFIG);
 
 
         setUser(response.data);
@@ -138,7 +139,7 @@ export const AuthProvider = ({ children }) => {
   // ================================
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8080/auth/logout", {}, { withCredentials: true });
+      await axios.post(API_ENDPOINTS.AUTH.LOGOUT, {}, AXIOS_CONFIG);
     } catch (_) { }
     Cookies.remove("userData");
     setUser(null);

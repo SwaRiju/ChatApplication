@@ -4,6 +4,7 @@ import { Client } from "@stomp/stompjs";
 import { AuthContext } from "./AuthContext";
 import axios from "axios";
 import { RequestCountContext } from "./RequestCountContext";
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../api/ApiConfig";
 
 export const SocketContext = createContext(null);
 
@@ -34,7 +35,7 @@ export function SocketProvider({ children }) {
 
     const stompClient = new Client({
       webSocketFactory: () =>
-        new SockJS("http://localhost:8080/ws", null, { withCredentials: true }),
+        new SockJS(API_ENDPOINTS.WEBSOCKETS.CONNECT, null, AXIOS_CONFIG),
       reconnectDelay: 5000,
       debug: (msg) => {
         if (import.meta.env.DEV) console.log("[STOMP]", msg);
@@ -162,7 +163,7 @@ export function SocketProvider({ children }) {
   useEffect(() => {
     if (!isAuthenticated) return;
     axios
-      .get("http://localhost:8080/connection/unread-count", { withCredentials: true })
+      .get(API_ENDPOINTS.CONNECTION.UNREAD_COUNT, AXIOS_CONFIG)
       .then((res) => setRequestCount(res.data))
       .catch((err) => console.error("Failed to load unread count", err));
   }, [isAuthenticated]);

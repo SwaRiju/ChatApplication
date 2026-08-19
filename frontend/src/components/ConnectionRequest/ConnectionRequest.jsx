@@ -3,6 +3,7 @@ import axios from "axios";
 import "./ConnectionRequest.css";
 import { AuthContext } from "../ContextAPI/AuthContext";
 import { RequestCountContext } from "../ContextAPI/RequestCountContext";
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../api/ApiConfig";
 
 export default function ConnectionRequests() {
     const { user } = useContext(AuthContext);
@@ -19,8 +20,8 @@ export default function ConnectionRequests() {
         const fetchRequests = async () => {
             try {
                 const res = await axios.get(
-                    "http://localhost:8080/connection/getAllConnections",
-                    { withCredentials: true }
+                    API_ENDPOINTS.CONNECTION.GET_ALL,
+                    AXIOS_CONFIG
                 );
                 setRequests(res.data);
             } catch (err) {
@@ -35,9 +36,9 @@ export default function ConnectionRequests() {
     const handleAction = async (requestId, action) => {
         try {
             await axios.put(
-                `http://localhost:8080/connection/${action}/${requestId}`,
+                API_ENDPOINTS.CONNECTION.ACTION(requestId, action),
                 {},
-                { withCredentials: true }
+                AXIOS_CONFIG
             );
             const statusMap = {
                 accept: "ACCEPTED",
@@ -61,18 +62,10 @@ export default function ConnectionRequests() {
     const cancelRequest = async (requestId) => {
 
         await axios.delete(
-            `http://localhost:8080/connection/cancel/${requestId}`,
-            { withCredentials: true }
+            API_ENDPOINTS.CONNECTION.CANCEL(requestId),
+            AXIOS_CONFIG
         );
     }
-
-    // useEffect(() => {
-    //     axios.post("http://localhost:8080/requests/mark-seen", {}, {
-    //         withCredentials: true
-    //     });
-
-    //     setRequestCount(0);
-    // }, []);
 
     return (
         <div className="cr-wrapper">

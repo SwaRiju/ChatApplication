@@ -3,6 +3,7 @@ import "./InviteModal.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../../api/ApiConfig";
 
 export default function InviteModal({ onClose }) {
   const [name, setName] = useState("");
@@ -54,9 +55,9 @@ export default function InviteModal({ onClose }) {
       setIsSending(true);
 
       await axios.post(
-        "http://localhost:8080/invitations/sendInvite",
+        API_ENDPOINTS.INVITATIONS.SEND,
         { name: name.trim(), email: email.trim() },
-        { withCredentials: true }
+        AXIOS_CONFIG
       );
 
       toast.success("Invitation sent!", { autoClose: 1500 });

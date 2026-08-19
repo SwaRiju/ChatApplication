@@ -16,6 +16,7 @@ import { useToast } from "../ContextAPI/ToastContext";
 import { ModalContext } from "../ContextAPI/ModalContext";
 import { IoIosArrowDropdownCircle } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../api/ApiConfig";
 
 export default function ChatWindow() {
   const { contacts, setContacts, selectedContact, setSelectedContact } = useContext(ChatContext);
@@ -102,9 +103,9 @@ export default function ChatWindow() {
     if (!selectedContact?.roomId) return;
     try {
       await axios.post(
-        `http://localhost:8080/messages/${selectedContact.roomId}/mark-read`,
+        API_ENDPOINTS.MESSAGES.MARK_READ(selectedContact.roomId),
         {},
-        { withCredentials: true }
+        AXIOS_CONFIG
       );
     } catch (err) {
       console.error("Failed to mark room read", err);
@@ -123,8 +124,8 @@ export default function ChatWindow() {
     const fetchMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/messages/${selectedContact.roomId}`,
-          { withCredentials: true }
+          API_ENDPOINTS.MESSAGES.GET_HISTORY(selectedContact.roomId),
+          AXIOS_CONFIG
         );
 
         if (!isMounted) return;
@@ -288,7 +289,7 @@ export default function ChatWindow() {
       };
 
       await axios.post(
-        "http://localhost:8080/messages/send",
+        API_ENDPOINTS.MESSAGES.SEND,
         payload,
         { withCredentials: true }
       );
@@ -340,7 +341,7 @@ export default function ChatWindow() {
 
   const clearAllChat = async ()=> {
     try {
-      await axios.delete(`http://localhost:8080/messages/${selectedContact.roomId}/clearChat`, {withCredentials: true});
+      await axios.delete(API_ENDPOINTS.MESSAGES.CLEAR_CHAT(selectedContact.roomId), AXIOS_CONFIG);
       showToast.success("Messages Deleted Successfully!");
       setDeleteChatpopUp(false);
     } catch (error) {

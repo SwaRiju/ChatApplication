@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { usePageManager } from "../ContextAPI/PageManagerContext";
 import { useToast } from "../ContextAPI/ToastContext";
 import { RequestCountContext } from "../ContextAPI/RequestCountContext";
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../api/ApiConfig";
 
 
 export default function Sidebar() {
@@ -29,8 +30,8 @@ export default function Sidebar() {
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/users/search?query=${searchQuery}`,
-        { withCredentials: true }
+        API_ENDPOINTS.USERS.SEARCH(searchQuery),
+        AXIOS_CONFIG
       );
       setSearchResults(response.data);
     } catch (err) {
@@ -56,10 +57,10 @@ export default function Sidebar() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/auth/logout",
+        API_ENDPOINTS.AUTH.LOGOUT,
         {},
         {
-          withCredentials: true,
+          AXIOS_CONFIG,
         }
       );
       if (response.status === 200) {

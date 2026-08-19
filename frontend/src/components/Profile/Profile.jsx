@@ -5,6 +5,7 @@ import { GrEdit, GrCheckmark, GrClose } from "react-icons/gr";
 import axios from "axios";
 import { useToast } from "../ContextAPI/ToastContext";
 import { ModalContext } from "../ContextAPI/ModalContext";
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../api/ApiConfig";
 
 export default function Profile() {
     const { user, setUser } = useContext(AuthContext);
@@ -36,8 +37,8 @@ export default function Profile() {
         formData.append('file', file);
 
         try {
-            const response = await axios.patch("http://localhost:8080/users/profile-picture", formData, {
-                withCredentials: true,
+            const response = await axios.patch(API_ENDPOINTS.USERS.UPDATE_PIC, formData, {
+                AXIOS_CONFIG,
                 responseType: "arraybuffer"
             }
             );

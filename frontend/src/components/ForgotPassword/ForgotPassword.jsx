@@ -3,6 +3,7 @@ import "./ForgotPassword.css";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from "../../api/ApiConfig";
 
 export default function ForgotPassword() {
   const [formData, setFormData] = useState({
@@ -94,7 +95,7 @@ export default function ForgotPassword() {
       setSendingOtp(true);
 
       const response = await axios.post(
-        "http://localhost:8080/forgot-password/get-otp",
+        API_ENDPOINTS.FORGOT_PASSWORD.GET_OTP,
         { email: formData.email }
       );
       toast.success("📨 OTP sent successfully to your email!");
@@ -128,7 +129,7 @@ export default function ForgotPassword() {
     }
     try {
       const response = await axios.patch(
-        "http://localhost:8080/forgot-password/change-password",
+        API_ENDPOINTS.FORGOT_PASSWORD.CHANGE_PASSWORD,
         {
           email: formData.email,
           otp: fullOtp,

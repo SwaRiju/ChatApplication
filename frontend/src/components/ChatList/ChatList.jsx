@@ -8,6 +8,7 @@ import { usePageManager } from "../ContextAPI/PageManagerContext";
 import { SocketContext } from "../ContextAPI/SocketContext";
 import { useToast } from "../ContextAPI/ToastContext";
 import { RequestCountContext } from "../ContextAPI/RequestCountContext";
+import {API_ENDPOINTS, AXIOS_CONFIG} from "../../api/ApiConfig"
 
 
 export default function ChatList() {
@@ -42,8 +43,8 @@ export default function ChatList() {
       try {
         setLoading(true);
         const response = await axios.get(
-          "http://localhost:8080/contacts/allContacts",
-          { withCredentials: true }
+          API_ENDPOINTS.CONTACTS.GET_ALL,
+          AXIOS_CONFIG
         );
 
         const processed = response.data.map(c => ({
@@ -211,9 +212,9 @@ export default function ChatList() {
   const sendRequest = async (targetId) => {
     try {
       await axios.post(
-        `http://localhost:8080/connection/sendRequest/${targetId}`,
+        API_ENDPOINTS.CONNECTION.SEND_REQUEST(targetId),
         {},
-        { withCredentials: true }
+        AXIOS_CONFIG
       );
       setSentRequests((prev) => new Set(prev).add(targetId));
       showToast.success("Connection request sent!");

@@ -9,6 +9,7 @@ import Carousel from "./Carousel";
 import { AuthContext } from "../ContextAPI/AuthContext";
 import { useLocation } from "react-router-dom";
 import { FaGear } from "react-icons/fa6";
+import {API_ENDPOINTS , AXIOS_CONFIG} from "../../api/ApiConfig.js"
 
 const LoginSignupPage = () => {
   const navigate = useNavigate();
@@ -110,10 +111,10 @@ const LoginSignupPage = () => {
     try {
       if (isLogin) {
         // 🔹 LOGIN API CALL
-        const response = await axios.post("http://localhost:8080/auth/login", {
+        const response = await axios.post(API_ENDPOINTS.AUTH.LOGIN, {
           email: formData.email,
           password: formData.password,
-        }, { withCredentials: true });
+        }, AXIOS_CONFIG);
 
         const { id, username, email, profilePicture, status } = response.data;
 
@@ -171,7 +172,7 @@ const LoginSignupPage = () => {
     try {
       setSendingOtp(true);
 
-      await axios.post("http://localhost:8080/signUp/send-otp", {
+      await axios.post(API_ENDPOINTS.AUTH.REGISTER_OTP, {
         email: formData.email,
       });
 
@@ -207,7 +208,7 @@ const LoginSignupPage = () => {
     try {
       setVerifyingOtp(true);
 
-      const otpResponse = await axios.post("http://localhost:8080/signUp/verify-otp", {
+      const otpResponse = await axios.post(API_ENDPOINTS.AUTH.REGISTER_VERIFY_OTP, {
         email: formData.email,
         otp: otp,
       });
@@ -216,8 +217,7 @@ const LoginSignupPage = () => {
 
 
       // ✅ OTP verified — now register
-      const res = await axios.post(
-        "http://localhost:8080/signUp/register",
+      const res = await axios.post(API_ENDPOINTS.AUTH.REGISTER,
         {
           username: formData.username,
           email: formData.email,
