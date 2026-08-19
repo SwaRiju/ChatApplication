@@ -89,7 +89,22 @@ public class OtpService {
         }
 
         message.setFrom("chatapp2400@gmail.com");
-        mailSender.send(message);
+
+        try {
+            System.out.println("Attempting to send OTP email...");
+            System.out.println("SMTP host: smtp.gmail.com");
+            System.out.println("SMTP port: 587");
+            System.out.println("Recipient: " + email);
+
+            mailSender.send(message);
+
+            System.out.println("OTP email sent successfully.");
+
+        } catch (Exception e) {
+            System.err.println("Failed to send OTP email.");
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private String generateOtp() {
