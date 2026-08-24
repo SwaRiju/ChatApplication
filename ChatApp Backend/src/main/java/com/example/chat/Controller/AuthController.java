@@ -3,6 +3,7 @@ package com.example.chat.Controller;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,12 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
+
+    @Value("${cookie.same-site}")
+    private String cookieSameSite;
+
     public AuthController(UserRepo userRepo, UserService userService, PasswordEncoder passwordEncoder,
             JwtService jwtService) {
         this.userRepo = userRepo;
@@ -71,20 +78,20 @@ public class AuthController {
 
         ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refresh)
                 .httpOnly(true)
-                .secure(false) // in production set true
+                .secure(cookieSecure) // in production set true
                 .path("/auth/refresh") // cookie sent only for refresh API
                 .maxAge(7 * 24 * 3600)
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
 
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
         ResponseCookie accessCookie = ResponseCookie.from("access_token", access)
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/") // sent for all backend APIs
                 .maxAge(15 * 60) // 15 minutes
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
 
         response.addHeader("Set-Cookie", accessCookie.toString());
@@ -131,19 +138,19 @@ public class AuthController {
 
             ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", newRefresh)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(cookieSecure)
                     .path("/auth/refresh")
                     .maxAge(7 * 24 * 3600)
-                    .sameSite("Lax")
+                    .sameSite(cookieSameSite)
                     .build();
             response.addHeader("Set-Cookie", refreshCookie.toString());
 
             ResponseCookie accessCookie = ResponseCookie.from("access_token", newAccess)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(cookieSecure)
                     .path("/")
                     .maxAge(15 * 60)
-                    .sameSite("Lax")
+                    .sameSite(cookieSameSite)
                     .build();
 
             response.addHeader("Set-Cookie", accessCookie.toString());
@@ -203,18 +210,18 @@ public class AuthController {
         // 4. Clear Cookies: Ensure browser deletes them
         ResponseCookie clearRefresh = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
-                .secure(false) // Set true in production
+                .secure(cookieSecure) // Set true in production
                 .path("/auth/refresh")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
 
         ResponseCookie clearAccess = ResponseCookie.from("access_token", "")
                 .httpOnly(true)
-                .secure(false) // Set true in production
+                .secure(cookieSecure) // Set true in production
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
 
         response.addHeader("Set-Cookie", clearRefresh.toString());
