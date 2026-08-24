@@ -36,7 +36,7 @@ export default function ConnectionRequests() {
     const handleAction = async (requestId, action) => {
         try {
             await axios.put(
-                API_ENDPOINTS.CONNECTION.ACTION(requestId, action),
+                API_ENDPOINTS.CONNECTION.ACTION(action, requestId),
                 {},
                 AXIOS_CONFIG
             );
