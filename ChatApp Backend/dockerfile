@@ -1,14 +1,22 @@
-# --------- BUILD STAGE ---------
+# ---------- BUILD STAGE ----------
 FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-COPY . .
+# Copy Maven configuration first
+COPY pom.xml .
 
-RUN mvn clean package -DskipTests
+# Download dependencies
+RUN mvn dependency:go-offline -B
+
+# Now copy source code
+COPY src ./src
+
+# Build application
+RUN mvn clean package -DskipTests -B
 
 
-# --------- RUN STAGE ---------
+# ---------- RUN STAGE ----------
 FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
@@ -19,4 +27,4 @@ EXPOSE 8080
 
 ENV SPRING_PROFILES_ACTIVE=prod
 
-ENTRYPOINT ["java", "-jar", "app.jar", "--server.port=${PORT}"]
+ENTRYPOINT ["sh", "-c", "exec java -jar app.jar --server.port=${PORT:-8080}"]
