@@ -1,8 +1,6 @@
 package com.example.chat.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.example.chat.Repository.InvitationRepo;
@@ -12,7 +10,7 @@ import com.example.chat.Repository.UserRepo;
 public class NotificationService {
 
     @Autowired
-    private JavaMailSender mailSender;
+    private BrevoEmailService brevoEmailService;
 
     @Autowired
     private UserRepo userRepo;
@@ -20,19 +18,35 @@ public class NotificationService {
     @Autowired
     private InvitationRepo invitationRepo;
 
-    public SimpleMailMessage notifyUser(Long userId, String message) {
-        // Implementation for notifying the user (e.g., sending an email or in-app notification)
-        // This is a placeholder implementation
+    public void notifyUser(Long userId, String message) {
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        String userEmail = userRepo.findEmailById(userId).get().getEmail();
-        String NameofAcceptedUser = invitationRepo.findBySenderId(userId).get().getReceiverName();
-        mailMessage.setTo(userEmail);
-        mailMessage.setSubject(NameofAcceptedUser+" Accepted your Invitation!");
-        mailMessage.setText("Greetings! \n\n"+message+"\nStart chatting by sending a connection Request.\n\nBest regards,\nChatApp Team");
-        mailMessage.setFrom("chatapp2400@gmail.com");
-        mailSender.send(mailMessage);
-        System.out.println("Notifying user " + userId + ": " + message);
-        return mailMessage;
+        String userEmail = userRepo.findEmailById(userId)
+                .orElseThrow(() -> new RuntimeException("User email not found"))
+                .getEmail();
+
+        String nameOfAcceptedUser =
+                invitationRepo.findBySenderId(userId)
+                        .orElseThrow(() -> new RuntimeException("Invitation not found"))
+                        .getReceiverName();
+
+        String subject =
+                nameOfAcceptedUser + " Accepted your Invitation!";
+
+        String emailBody =
+                "Greetings!\n\n"
+                + message + "\n\n"
+                + "Start chatting by sending a connection request.\n\n"
+                + "Best regards,\n"
+                + "ChatApp Team";
+
+        brevoEmailService.sendEmail(
+                userEmail,
+                subject,
+                emailBody
+        );
+
+        System.out.println(
+                "Notifying user " + userId + ": " + message
+        );
     }
 }
