@@ -9,7 +9,7 @@ import Carousel from "./Carousel";
 import { AuthContext } from "../ContextAPI/AuthContext";
 import { useLocation } from "react-router-dom";
 import { FaGear } from "react-icons/fa6";
-import {API_ENDPOINTS , AXIOS_CONFIG} from "../../api/ApiConfig.js"
+import { API_ENDPOINTS, AXIOS_CONFIG } from "../../api/ApiConfig.js"
 
 const LoginSignupPage = () => {
   const navigate = useNavigate();
@@ -30,9 +30,12 @@ const LoginSignupPage = () => {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [showFullLoader, setShowFullLoader] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const inviteToken = new URLSearchParams(location.search).get("invite");
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
   const isFormValid = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,7 +44,8 @@ const LoginSignupPage = () => {
       return (
         formData.email.trim() !== "" &&
         formData.password.trim() !== "" &&
-        emailRegex.test(formData.email)
+        emailRegex.test(formData.email) &&
+        passwordRegex.test(formData.password)
       );
     } else {
       return (
@@ -50,6 +54,7 @@ const LoginSignupPage = () => {
         formData.password.trim() !== "" &&
         formData.confirmPassword.trim() !== "" &&
         emailRegex.test(formData.email) &&
+        passwordRegex.test(formData.password) &&
         formData.password === formData.confirmPassword
       );
     }
@@ -65,6 +70,12 @@ const LoginSignupPage = () => {
       if (!emailRegex.test(formData.email)) {
         return { isValid: false, message: "Invalid email format" };
       }
+      if (!passwordRegex.test(formData.password)) {
+        return {
+          isValid: false,
+          message: "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character",
+        };
+      }
       return { isValid: true };
     } else {
       if (
@@ -77,6 +88,13 @@ const LoginSignupPage = () => {
       }
       if (!emailRegex.test(formData.email)) {
         return { isValid: false, message: "Invalid email format" };
+      }
+      if (!passwordRegex.test(formData.password)) {
+        return {
+          isValid: false,
+          message:
+            "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character",
+        };
       }
       if (formData.password !== formData.confirmPassword) {
         return { isValid: false, message: "Passwords do not match" };
@@ -101,12 +119,16 @@ const LoginSignupPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
     const validation = validateForm(formData, isLogin);
 
     if (!validation.isValid) {
       toast.error(`${validation.message}`, { autoClose: 2500 });
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       if (isLogin) {
@@ -162,6 +184,8 @@ const LoginSignupPage = () => {
         // Unexpected error
         toast.error("Something went wrong.", { autoClose: 2500 });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -342,6 +366,8 @@ const LoginSignupPage = () => {
                       value={formData.password}
                       onChange={handleInputChange}
                       className="form-input password-input"
+                      minLength={8}
+                      pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}"
                       required
                     />
                     <button
@@ -356,6 +382,13 @@ const LoginSignupPage = () => {
                       )}
                     </button>
                   </div>
+
+                  {formData.password && !passwordRegex.test(formData.password) && (
+                    <small className="password-hint">
+                      Password must be at least 8 characters and include uppercase,
+                      lowercase, number and special character.
+                    </small>
+                  )}
 
                   {/* Confirm Password (only for signup) */}
                   {!isLogin && (
@@ -385,17 +418,31 @@ const LoginSignupPage = () => {
                     </div>
                   )}
 
+                  {!isLogin && formData.confirmPassword &&
+                    formData.password !== formData.confirmPassword && (
+                      <small className="password-hint">
+                        Passwords do not match.
+                      </small>
+                    )}
+
                   {/* Submit Button */}
                   <button
                     type="button"
                     onClick={handleSubmit}
                     className="submit-btn"
+                    disabled={!isFormValid() || isSubmitting}
                     style={{
                       opacity: !isFormValid() ? 0.5 : 1,
                       cursor: !isFormValid() ? "not-allowed" : "pointer",
                     }}
                   >
-                    {isLogin ? "Login" : "Sign Up"}
+                    {isSubmitting
+                      ? isLogin
+                        ? "Logging You in..."
+                        : "Creating Your Account..."
+                      : isLogin
+                        ? "Login"
+                        : "Sign Up"}
                   </button>
                   {isLogin && (
                     <div className="forgot-password-container">
@@ -549,7 +596,7 @@ const LoginSignupPage = () => {
               {verifyingOtp ? "Verifying..." : "Verify"}
             </button>
 
-            <button className="cancel-btn" onClick={() => { setOtp(""); setShowOtpModal(false)}}>
+            <button className="cancel-btn" onClick={() => { setOtp(""); setShowOtpModal(false) }}>
               Cancel
             </button>
           </div>
