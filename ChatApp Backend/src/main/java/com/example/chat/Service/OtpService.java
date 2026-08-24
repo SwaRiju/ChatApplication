@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +16,7 @@ import com.example.chat.Repository.UserRepo;
 public class OtpService {
 
     @Autowired
-    private JavaMailSender mailSender;
+    private BrevoEmailService brevoEmailService;
 
     @Autowired
     private UserRepo userRepo;
@@ -77,32 +75,42 @@ public class OtpService {
     }
 
     private void sendMail(String email, String otp, OtpPurpose purpose) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
+
+        String subject;
+        String text;
 
         if (purpose == OtpPurpose.SIGNUP) {
-            message.setSubject("Verify your email");
-            message.setText("Your signup verification OTP: " + otp);
+
+            subject = "Verify your email";
+
+            text = "Your signup verification OTP: " + otp
+                    + "\n\nThis OTP will expire in 5 minutes.";
+
         } else {
-            message.setSubject("Reset password OTP");
-            message.setText("Your password reset OTP: " + otp);
+
+            subject = "Reset password OTP";
+
+            text = "Your password reset OTP: " + otp
+                    + "\n\nThis OTP will expire in 5 minutes.";
         }
 
-        message.setFrom("chatapp2400@gmail.com");
-
         try {
-            System.out.println("Attempting to send OTP email...");
-            System.out.println("SMTP host: smtp.gmail.com");
-            System.out.println("SMTP port: 587");
+
+            System.out.println("Attempting to send OTP email via Brevo...");
             System.out.println("Recipient: " + email);
 
-            mailSender.send(message);
+            brevoEmailService.sendEmail(
+                    email,
+                    subject,
+                    text);
 
-            System.out.println("OTP email sent successfully.");
+            System.out.println("OTP email sent successfully via Brevo.");
 
         } catch (Exception e) {
-            System.err.println("Failed to send OTP email.");
+
+            System.err.println("Failed to send OTP email via Brevo.");
             e.printStackTrace();
+
             throw e;
         }
     }
