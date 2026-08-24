@@ -1,22 +1,13 @@
-# ---------- BUILD STAGE ----------
 FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# Copy Maven configuration first
 COPY pom.xml .
-
-# Download dependencies
-RUN mvn dependency:go-offline -B
-
-# Now copy source code
 COPY src ./src
 
-# Build application
 RUN mvn clean package -DskipTests -B
 
 
-# ---------- RUN STAGE ----------
 FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
