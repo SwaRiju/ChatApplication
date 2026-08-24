@@ -383,8 +383,8 @@ const LoginSignupPage = () => {
                     </button>
                   </div>
 
-                  {formData.password && !passwordRegex.test(formData.password) && (
-                    <small className="password-hint">
+                  {!isLogin && formData.password && !passwordRegex.test(formData.password) && (
+                    <small className="password-hint" style={{color: "White"}}>
                       Password must be at least 8 characters and include uppercase,
                       lowercase, number and special character.
                     </small>
@@ -420,7 +420,7 @@ const LoginSignupPage = () => {
 
                   {!isLogin && formData.confirmPassword &&
                     formData.password !== formData.confirmPassword && (
-                      <small className="password-hint">
+                      <small className="password-hint" style={{color: "White"}}>
                         Passwords do not match.
                       </small>
                     )}
