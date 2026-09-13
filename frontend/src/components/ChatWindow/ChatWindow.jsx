@@ -500,7 +500,7 @@ export default function ChatWindow() {
           <span className="mic"><MdKeyboardVoice /></span>
         </div>
 
-        <button className="send" onClick={sendMessage}>➤</button>
+        <button className="send" onClick={() => sendMessage()}>➤</button>
       </div>
       {showScrollDown && (
         <div
